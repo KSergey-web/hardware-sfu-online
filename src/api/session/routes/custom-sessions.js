@@ -2,8 +2,8 @@ module.exports = {
     routes: [
       { // Path defined with a URL parameter
         method: 'GET',
-        path: '/ses',
-        handler: 'custom-sessions.hasAccess',
+        path: '/sessions/:id/canConnect',
+        handler: 'custom-sessions.canConnect',
         config: {
 
           }
