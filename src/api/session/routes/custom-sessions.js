@@ -18,5 +18,16 @@ module.exports = {
         handler: 'custom-sessions.getStartedAndNearestSessions',
         config: {}
       },
+      ,
+      { // Path defined with a URL parameter
+        method: 'GET',
+        path: '/sessions/equipment/:equipmentId/start-date/:startDate/end-date/:endDate',
+        handler: 'custom-sessions.getSessionsByDateAndEquipment',
+        config: {
+          middlewares: [
+            'api::session.check-range-date'
+          ]
+        }
+      },
     ]
   }

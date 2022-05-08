@@ -8,7 +8,7 @@ const { createCoreService } = require('@strapi/strapi').factories;
 
 module.exports = createCoreService('api::session.session', () => ({
 
-    sanitazeUsersPropertiesInSessions(sessions){
+    sanitazeUsersPropertiesInSessions(sessions) {
         return sessions = sessions.map(session => {
             session.user = sanitizeUser(session.user);
             session.creator = sanitizeUser(session.creator);
@@ -66,6 +66,40 @@ module.exports = createCoreService('api::session.session', () => ({
             sort: { begin: 'ASC' },
         });
         sessions = this.sanitazeUsersPropertiesInSessions(sessions);
+        return sessions
+    },
+
+    async getSessionsByEquipmentInRangeDate(equipmentId, startDateStr, endDateStr) {
+        const nowStr = new Date().toJSON();
+        let sessions = await strapi.entityService.findMany('api::session.session', {
+            filters: {
+                equipment: equipmentId,
+                end: {
+                    $gte: nowStr,
+                },
+                $or: [
+                    {
+                        begin: {
+                            $between: [startDateStr, endDateStr],
+                        }
+                    },
+                    {
+                        end: {
+                            $between: [startDateStr, endDateStr],
+                        }
+                    },
+                    {
+                        begin: {
+                            $lte: startDateStr,
+                        },
+                        end: {
+                            $gte: endDateStr,
+                        }
+                    }
+                ],
+            },
+            sort: { begin: 'ASC' },
+        });
         return sessions
     },
 

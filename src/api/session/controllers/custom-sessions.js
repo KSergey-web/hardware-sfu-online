@@ -40,5 +40,11 @@ module.exports = {
     async getStartedAndNearestSessions(){
         const sessions = await this.sessionService.getStartedAndNearestSessions();
         return sessions;
+    },
+
+    async getSessionsByDateAndEquipment(ctx){
+        const {equipmentId, startDate, endDate} = ctx.params;
+        const sessions = await this.sessionService.getSessionsByEquipmentInRangeDate(equipmentId, startDate, endDate);
+        return sessions;
     }
 };
