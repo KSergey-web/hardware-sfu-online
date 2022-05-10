@@ -1,50 +1,55 @@
 'use strict';
 
+const { TEACHER } = require('../../../constants');
 
 module.exports = {
-    get sessionService(){
-         return strapi.service('api::session.session')
-    },
+  get sessionService() {
+    return strapi.service('api::session.session');
+  },
 
-    async canConnect(ctx) {
-        try {
-            const sessionId = ctx.params.id;
-            const user = ctx.state.user;
-            const session = await strapi
-                .query("api::session.session")
-                .findOne({
-                    where: { id: sessionId },
-                    populate: {
-                        user: true,
-                        equipment: true
-                    }
-                })
-            if (!session) throw new Error('Session not found');
-            if (session.user.id !== user.id || user.role.type !== TEACHER) throw new Error('You have no access to this session');
-            //const wrapSession = await strapi.controller('api::session.session').findOne(ctx);
-            const isSessionInProgress = await this.sessionService.isSessionInProgress(session);
-            if (!isSessionInProgress)
-                throw new Error('Session is not in progress status');
-            ctx.body = { equipment: session.equipment }
-        } catch (err) {
-            return ctx.badRequest(err.message, err)
-        }
-    },
-
-    async getSessionsByCurrentUser(ctx){
-        const user = ctx.state.user;
-        const sessions = await this.sessionService.getSessionsByUser(user.id);
-        return sessions;
-    },
-
-    async getStartedAndNearestSessions(){
-        const sessions = await this.sessionService.getStartedAndNearestSessions();
-        return sessions;
-    },
-
-    async getSessionsByDateAndEquipment(ctx){
-        const {equipmentId, startDate, endDate} = ctx.params;
-        const sessions = await this.sessionService.getSessionsByEquipmentInRangeDate(equipmentId, startDate, endDate);
-        return sessions;
+  async canConnect(ctx) {
+    const sessionId = ctx.params.id;
+    const user = ctx.state.user;
+    const session = await this.sessionService.getPopulatedSessionById(
+      sessionId,
+    );
+    if (!session) {
+      return ctx.notFound('Session not found', { sessionId: sessionId });
     }
+    if (session.user.id !== user.id || user.role.type !== TEACHER) {
+      return ctx.forbidden('You have no access to this session', {
+        yourRole: user.role.type,
+      });
+    }
+    const isSessionInProgress = await this.sessionService.isSessionInProgress(
+      session,
+    );
+    if (!isSessionInProgress) {
+      const { begin, end } = session;
+      return ctx.badRequest('Session is not in progress status', {
+        begin,
+        end,
+      });
+    }
+    return (ctx.body = { session });
+  },
+
+  async getSessionsByCurrentUser(ctx) {
+    const user = ctx.state.user;
+    const sessions = await this.sessionService.getSessionsByUser(user.id);
+    ctx.body = { sessions };
+  },
+
+  async getStartedAndNearestSessions(ctx) {
+    const sessions = await this.sessionService.getStartedAndNearestSessions();
+    ctx.body = { sessions };
+  },
+
+  async getSessionsByEquipmentInRangeDate(ctx) {
+    const { equipmentId, begin, end } = ctx.params;
+    const sessions = await strapi
+      .service('api::session.session')
+      .getSessionsByEquipmentInRangeDate(equipmentId, begin, end);
+    ctx.body = { sessions };
+  },
 };

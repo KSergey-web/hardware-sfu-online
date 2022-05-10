@@ -1,24 +1,12 @@
+const sessionValidation = require('../validators/validation');
 
-
-module.exports = (config, { strapi }) => {
-    return (ctx, next) => {
-        const { startDate, endDate } = ctx.params;
-        try {
-            const startDateObj = new Date(startDate);
-            if (isNaN(startDateObj)) {
-                throw new Error('startDate invalid');
-            }
-            const endDateObj = new Date(endDate);
-            if (isNaN(endDateObj)) {
-                throw new Error('endDate invalid');
-            }
-            if (startDateObj > endDateObj) {
-                throw new Error('endDate must be great then startDate.')
-            }
-            next();
-        } catch (err) {
-            return ctx.badRequest(err.message, err);
-        }
-        
-    };
+module.exports = (config) => {
+  return (ctx, next) => {
+    const { begin, end } = ctx[config.path];
+    const resValidation = sessionValidation.checkValidBeginAndEnd(begin, end);
+    if (resValidation.isValid) {
+      return next();
+    }
+    return ctx.badRequest(resValidation.message, { begin, end });
+  };
 };
