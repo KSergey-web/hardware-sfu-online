@@ -39,6 +39,12 @@ module.exports = {
     const sessions = await this.sessionService.getSessionsByUser(user.id);
     ctx.body = { sessions };
   },
+  async getSessionsByCurrentCreator(ctx) {
+    const user = ctx.state.user;
+    const sessions = await this.sessionService.getSessionsByCreator(user.id);
+    ctx.body = { sessions };
+  },
+
 
   async getStartedAndNearestSessions(ctx) {
     const sessions = await this.sessionService.getStartedAndNearestSessions();

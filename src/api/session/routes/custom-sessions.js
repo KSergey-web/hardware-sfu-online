@@ -17,6 +17,13 @@ module.exports = {
     {
       // Path defined with a URL parameter
       method: 'GET',
+      path: '/sessions/by-current-creator',
+      handler: 'custom-sessions.getSessionsByCurrentCreator',
+      config: {},
+    },
+    {
+      // Path defined with a URL parameter
+      method: 'GET',
       path: '/sessions/nearest-and-started',
       handler: 'custom-sessions.getStartedAndNearestSessions',
       config: {},

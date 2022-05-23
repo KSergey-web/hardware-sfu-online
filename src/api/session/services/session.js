@@ -53,9 +53,25 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
     sessions = this.sanitazeUsersPropertiesInSessions(sessions);
     return sessions;
   },
-
+  async getSessionsByCreator(creatorId) {
+    const now = new Date();
+    const nowStr = now.toJSON();
+    let sessions = await strapi.entityService.findMany(API_SESSIONS_STR, {
+      filters: {
+        creator: creatorId,
+        end: {
+          $gte: nowStr,
+        },
+      },
+      populate: ['user', 'creator', 'equipment'],
+      sort: { begin: 'ASC' },
+    });
+    sessions = this.sanitazeUsersPropertiesInSessions(sessions);
+    return sessions;
+  },
   async getStartedAndNearestSessions() {
-    const now = new Date().toJSON();
+    const now = new Date();
+    const nowStr = now.toJSON();
     const tenMinutesInSeconds = 600000;
     const after10Minutes = new Date(+now + tenMinutesInSeconds).toJSON();
     let sessions = await strapi.entityService.findMany(API_SESSIONS_STR, {
@@ -63,17 +79,17 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
         $or: [
           {
             begin: {
-              $between: [now, after10Minutes],
+              $between: [nowStr, after10Minutes],
             },
           },
           {
             begin: {
-              $lte: now,
+              $lte: nowStr,
             },
           },
         ],
         end: {
-          $gte: now,
+          $gte: nowStr,
         },
       },
       populate: ['user', 'creator', 'equipment'],
