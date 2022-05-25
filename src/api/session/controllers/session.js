@@ -6,6 +6,7 @@
 
 const { createCoreController } = require('@strapi/strapi').factories;
 const DetailedError = require('../../../custom-code/detailed-error.class');
+const Serializer = require('../../../custom-code/serializer.class');
 
 module.exports = createCoreController('api::session.session', ({ strapi }) => ({
   get sessionService() {
@@ -23,5 +24,13 @@ module.exports = createCoreController('api::session.session', ({ strapi }) => ({
         throw err;
       }
     }
+  },
+  async find(ctx) {
+    const { serialize } = ctx.query;
+    const res = await super.find(ctx);
+    if (serialize) {
+        res.data = Serializer.serializeArray(res.data);  
+    }
+    return res;
   },
 }));
