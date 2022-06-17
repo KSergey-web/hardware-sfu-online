@@ -35,8 +35,8 @@ module.exports = createCoreController('api::session.session', ({ strapi }) => ({
   },
   async findOne(ctx) {
     const { serialize } = ctx.query;
-    const res = await super.find(ctx);
-    if (serialize) {
+    const res = await super.findOne(ctx);
+    if (serialize && res) {
       res.data = Serializer.serializeObject(res.data);
     }
     return res;
