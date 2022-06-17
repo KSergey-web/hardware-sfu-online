@@ -53,6 +53,7 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
     sessions = this.sanitazeUsersPropertiesInSessions(sessions);
     return sessions;
   },
+
   async getSessionsByCreator(creatorId) {
     const now = new Date();
     const nowStr = now.toJSON();
@@ -132,6 +133,7 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
           },
         ],
       },
+      populate: ['user', 'creator'],
       sort: { begin: 'ASC' },
     });
     return sessions;
