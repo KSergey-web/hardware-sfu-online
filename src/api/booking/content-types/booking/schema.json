@@ -1,0 +1,47 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bookings",
+  "info": {
+    "singularName": "booking",
+    "pluralName": "bookings",
+    "displayName": "Booking",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "subgroup": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::subgroup.subgroup",
+      "inversedBy": "bookings"
+    },
+    "equipment": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::equipment.equipment"
+    },
+    "begin": {
+      "required": true,
+      "type": "datetime"
+    },
+    "end": {
+      "type": "datetime",
+      "required": true
+    },
+    "session_duration": {
+      "type": "integer",
+      "required": true,
+      "max": 120,
+      "min": 30
+    },
+    "max_session_duration_per_day": {
+      "type": "integer",
+      "max": 1440,
+      "min": 30,
+      "required": true
+    }
+  }
+}

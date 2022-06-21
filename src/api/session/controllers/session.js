@@ -14,7 +14,6 @@ module.exports = createCoreController('api::session.session', ({ strapi }) => ({
   },
 
   async create(ctx) {
-    const { equipment, begin, end } = ctx.request.body.data;
     try {
       ctx.body = await super.create(ctx);
     } catch (err) {

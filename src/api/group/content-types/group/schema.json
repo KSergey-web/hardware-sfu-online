@@ -20,12 +20,6 @@
       "relation": "oneToMany",
       "target": "api::student.student",
       "mappedBy": "group"
-    },
-    "department": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::department.department",
-      "inversedBy": "groups"
     }
   }
 }

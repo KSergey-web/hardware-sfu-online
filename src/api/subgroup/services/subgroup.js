@@ -1,9 +1,9 @@
 'use strict';
 
 /**
- * department service.
+ * subgroup service.
  */
 
 const { createCoreService } = require('@strapi/strapi').factories;
 
-module.exports = createCoreService('api::department.department');
+module.exports = createCoreService('api::subgroup.subgroup');
