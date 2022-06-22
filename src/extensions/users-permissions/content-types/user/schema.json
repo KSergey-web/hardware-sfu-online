@@ -77,12 +77,6 @@
     },
     "patronymic": {
       "type": "string"
-    },
-    "subgroups": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::subgroup.subgroup",
-      "mappedBy": "users"
     }
   }
 }

@@ -20,9 +20,8 @@
     },
     "users": {
       "type": "relation",
-      "relation": "manyToMany",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "subgroups"
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user"
     },
     "bookings": {
       "type": "relation",
