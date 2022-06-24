@@ -15,6 +15,7 @@ module.exports = createCoreController(
       const res = await super.find(ctx);
       if (serialize) {
         res.subgroups = Serializer.serializeArray(res.data);
+        delete res.data;
       }
       return res;
     },
@@ -22,7 +23,8 @@ module.exports = createCoreController(
       const { serialize } = ctx.query;
       const res = await super.findOne(ctx);
       if (serialize && res) {
-        res.subgroups = Serializer.serializeObject(res.data);
+        res.subgroup = Serializer.serializeObject(res.data);
+        delete res.data;
       }
       return res;
     },

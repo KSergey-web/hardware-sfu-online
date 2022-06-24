@@ -14,7 +14,7 @@ class Serializer {
         continue;
       }
       if (typeof item[key] === 'object') {
-        item[key] = Serializer.serializeObject(item[key].data);
+        item[key] = Serializer.serializeObject(item[key].data ?? item[key]);
       }
     }
     return item;
