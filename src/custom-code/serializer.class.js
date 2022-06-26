@@ -24,6 +24,23 @@ class Serializer {
     array = array.map(Serializer.serializeObject);
     return array;
   }
+
+  static serializeDecorator(fnc) {
+    return async (ctx) => {
+      const { serialize, additional_name_for_data } = ctx.query;
+      const res = await fnc(ctx);
+      if (!(serialize && res)) {
+        return res;
+      }
+      res.data = Array.isArray(res.data)
+        ? Serializer.serializeArray(res.data)
+        : Serializer.serializeObject(res.data);
+      if (additional_name_for_data) {
+        res[additional_name_for_data] = res.data;
+      }
+      return res;
+    };
+  }
 }
 
 module.exports = Serializer;

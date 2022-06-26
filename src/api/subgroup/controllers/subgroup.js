@@ -11,21 +11,13 @@ module.exports = createCoreController(
   'api::subgroup.subgroup',
   ({ strapi }) => ({
     async find(ctx) {
-      const { serialize } = ctx.query;
-      const res = await super.find(ctx);
-      if (serialize) {
-        res.subgroups = Serializer.serializeArray(res.data);
-        delete res.data;
-      }
+      const superFind = Serializer.serializeDecorator(super.find.bind(this));
+      const res = await superFind(ctx);
       return res;
     },
     async findOne(ctx) {
-      const { serialize } = ctx.query;
-      const res = await super.findOne(ctx);
-      if (serialize && res) {
-        res.subgroup = Serializer.serializeObject(res.data);
-        delete res.data;
-      }
+      const superFind = Serializer.serializeDecorator(super.findOne.bind(this));
+      const res = await superFind(ctx);
       return res;
     },
   }),
