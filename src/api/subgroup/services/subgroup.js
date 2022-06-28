@@ -21,11 +21,10 @@ module.exports = createCoreService(API_SUBGROUPS_STR, () => ({
     return (subgroups = subgroups.map(this.sanitazeUsersPropertiesInSubgroup));
   },
 
-  // Method 1: Creating an entirely custom service
   async getSubgroupsByUser(userId) {
     let subgroups = await strapi.entityService.findMany(API_SUBGROUPS_STR, {
       filters: {
-        users: { $in: userId },
+        users: userId,
       },
       populate: ['creator'],
       sort: { name: 'ASC' },
