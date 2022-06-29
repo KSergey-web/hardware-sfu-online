@@ -11,7 +11,7 @@ module.exports = {
       res.message = 'end invalid';
       return res;
     }
-    if (begin > end) {
+    if (begin >= end) {
       res.message = 'endDate must be great then startDate.';
       return res;
     }

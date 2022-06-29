@@ -45,5 +45,12 @@ module.exports = {
         ],
       },
     },
+    {
+      // Path defined with a URL parameter
+      method: 'POST',
+      path: '/sessions/signup-for-session',
+      handler: 'custom-sessions.signupForSession',
+      config: {},
+    },
   ],
 };

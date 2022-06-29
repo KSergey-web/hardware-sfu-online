@@ -6,6 +6,8 @@
 const { sanitizeUser } = require('../../../sanitize-user.function');
 const { createCoreService } = require('@strapi/strapi').factories;
 const API_SESSIONS_STR = 'api::session.session';
+const { API_BOOKINGS_STR } = require('../../../constants');
+const DetailedError = require('../../../custom-code/detailed-error.class');
 
 module.exports = createCoreService(API_SESSIONS_STR, () => ({
   async getPopulatedSessionById(sessionId) {
@@ -137,5 +139,37 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
       sort: { begin: 'ASC' },
     });
     return sessions;
+  },
+  async createSessionByBooking(bookingId, begin, end, userId) {
+    let bookings = await strapi.entityService.findMany(API_BOOKINGS_STR, {
+      filters: {
+        id: bookingId,
+        subgroup: {
+          users: userId,
+        },
+      },
+      populate: ['equipment'],
+      sort: { begin: 'ASC' },
+    });
+    if (bookings.length === 0) {
+      throw new DetailedError(
+        'Пользователь не состоит в группе или такой брони не существует',
+        {
+          bookings: JSON.stringify(bookings),
+          bookingId,
+        },
+      );
+    }
+    const booking = bookings[0];
+    const session = await strapi.entityService.create(API_SESSIONS_STR, {
+      data: {
+        begin,
+        end,
+        equipment: booking.equipment.id,
+        user: userId,
+        creator: userId,
+      },
+    });
+    return session;
   },
 }));

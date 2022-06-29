@@ -1,6 +1,7 @@
 'use strict';
 
 const { TEACHER } = require('../../../constants');
+const DetailedError = require('../../../custom-code/detailed-error.class');
 
 module.exports = {
   get sessionService() {
@@ -45,7 +46,6 @@ module.exports = {
     ctx.body = { sessions };
   },
 
-
   async getStartedAndNearestSessions(ctx) {
     const sessions = await this.sessionService.getStartedAndNearestSessions();
     ctx.body = { sessions };
@@ -57,5 +57,23 @@ module.exports = {
       .service('api::session.session')
       .getSessionsByEquipmentInRangeDate(equipmentId, begin, end);
     ctx.body = { sessions };
+  },
+
+  async signupForSession(ctx) {
+    const { booking: bookingId, begin, end } = ctx.request.body.data;
+    const user = ctx.state.user;
+    try {
+      const session = await strapi
+        .service('api::session.session')
+        .createSessionByBooking(bookingId, begin, end, user.id);
+      ctx.body = { session };
+    } catch (err) {
+      if (err instanceof DetailedError) {
+        console.error(err);
+        return ctx.badRequest(err.message, err.details);
+      } else {
+        throw err;
+      }
+    }
   },
 };
