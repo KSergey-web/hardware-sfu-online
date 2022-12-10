@@ -7,6 +7,10 @@ module.exports = {
   get STUDENT() {
     return 'student';
   },
+  get PUBLIC() {
+    return 'public';
+  },
+
   get API_SESSIONS_STR() {
     return 'api::session.session';
   },

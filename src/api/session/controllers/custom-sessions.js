@@ -17,7 +17,7 @@ module.exports = {
     if (!session) {
       return ctx.notFound('Session not found', { sessionId: sessionId });
     }
-    if (session.user.id !== user.id || user.role.type !== TEACHER) {
+    if (session.user.id !== user.id && user.role.type !== TEACHER) {
       return ctx.forbidden('You have no access to this session', {
         yourRole: user.role.type,
       });
