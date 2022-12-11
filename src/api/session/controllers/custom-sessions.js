@@ -60,13 +60,33 @@ module.exports = {
   },
 
   async signupForSession(ctx) {
-    const { booking: bookingId, begin, end } = ctx.request.body.data;
+    const { booking: bookingId, begin } = ctx.request.body.data;
     const user = ctx.state.user;
     try {
       const session = await strapi
         .service('api::session.session')
-        .createSessionByBooking(bookingId, begin, end, user.id);
+        .createSessionByBooking(bookingId, begin, user.id);
       ctx.body = { session };
+    } catch (err) {
+      if (err instanceof DetailedError) {
+        console.error(err);
+        return ctx.badRequest(err.message, err.details);
+      } else {
+        throw err;
+      }
+    }
+  },
+
+  async getNumberRemainingSessionsInDayForCurrentUser(ctx) {
+    const { bookingId, date } = ctx.request.query;
+    const user = ctx.state.user;
+    try {
+      const count = await strapi
+        .service('api::session.session')
+        .getNumberRemainingSessionsInDayForCurrentUser(date, user.id, {
+          bookingId,
+        });
+      ctx.body = { count };
     } catch (err) {
       if (err instanceof DetailedError) {
         console.error(err);

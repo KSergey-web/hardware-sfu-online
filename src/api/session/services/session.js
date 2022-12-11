@@ -8,6 +8,7 @@ const { createCoreService } = require('@strapi/strapi').factories;
 const API_SESSIONS_STR = 'api::session.session';
 const { API_BOOKINGS_STR } = require('../../../constants');
 const DetailedError = require('../../../custom-code/detailed-error.class');
+const DateHelper = require('../../../custom-code/date-helper.class');
 
 module.exports = createCoreService(API_SESSIONS_STR, () => ({
   async getPopulatedSessionById(sessionId) {
@@ -140,27 +141,30 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
     });
     return sessions;
   },
-  async createSessionByBooking(bookingId, begin, end, userId) {
-    let bookings = await strapi.entityService.findMany(API_BOOKINGS_STR, {
-      filters: {
-        id: bookingId,
-        subgroup: {
-          users: userId,
-        },
-      },
-      populate: ['equipment'],
-      sort: { begin: 'ASC' },
-    });
-    if (bookings.length === 0) {
-      throw new DetailedError(
-        'Пользователь не состоит в группе или такой брони не существует',
-        {
-          bookings: JSON.stringify(bookings),
-          bookingId,
-        },
-      );
+  async createSessionByBooking(bookingId, begin, userId) {
+    let booking = await strapi
+      .service(API_BOOKINGS_STR)
+      .getBookingByIdForUser(bookingId, userId);
+    if (booking.max_sessions_count_per_day) {
+      const remainigSessionsCountForUser =
+        await this.getNumberRemainingSessionsInDayForCurrentUser(
+          begin,
+          userId,
+          {
+            booking,
+          },
+        );
+      if (remainigSessionsCountForUser <= 0) {
+        throw new DetailedError(
+          'Не осталось сессий для данного пользователя в этот день',
+          {
+            bookingId,
+            userId,
+          },
+        );
+      }
     }
-    const booking = bookings[0];
+    const end = DateHelper.addMinutesToDate(begin, booking.session_duration);
     const session = await strapi.entityService.create(API_SESSIONS_STR, {
       data: {
         begin,
@@ -168,8 +172,36 @@ module.exports = createCoreService(API_SESSIONS_STR, () => ({
         equipment: booking.equipment.id,
         user: userId,
         creator: userId,
+        booking: bookingId,
+        publicationState: 'live',
+        publishedAt: new Date(),
       },
     });
     return session;
+  },
+  async getNumberRemainingSessionsInDayForCurrentUser(
+    startSessionDateStr,
+    userId,
+    { booking = null, bookingId },
+  ) {
+    if (!booking) {
+      booking = await strapi
+        .service(API_BOOKINGS_STR)
+        .getBookingByIdForUser(bookingId, userId);
+    }
+    const startOfDay =
+      DateHelper.getStartOfDayStrByStrDate(startSessionDateStr);
+    const endOfDay = DateHelper.getEndOfDayStrByStrDate(startSessionDateStr);
+    let sessions = await strapi.entityService.findMany(API_SESSIONS_STR, {
+      filters: {
+        booking: booking.id,
+        user: userId,
+        begin: {
+          $between: [startOfDay, endOfDay],
+        },
+      },
+    });
+    const remainingCount = booking.max_sessions_count_per_day - sessions.length;
+    return remainingCount;
   },
 }));

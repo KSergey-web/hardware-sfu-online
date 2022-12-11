@@ -22,4 +22,26 @@ module.exports = createCoreService(API_BOOKING_STR, () => ({
     });
     return bookings;
   },
+  async getBookingByIdForUser(bookingId, userId) {
+    let bookings = await strapi.entityService.findMany(API_BOOKING_STR, {
+      filters: {
+        id: bookingId,
+        subgroup: {
+          users: userId,
+        },
+      },
+      populate: ['equipment'],
+      sort: { begin: 'ASC' },
+    });
+    if (bookings.length === 0) {
+      throw new DetailedError(
+        'Пользователь не состоит в группе c этой бронью или такой брони не существует',
+        {
+          bookings: JSON.stringify(bookings),
+          bookingId,
+        },
+      );
+    }
+    return bookings[0];
+  },
 }));

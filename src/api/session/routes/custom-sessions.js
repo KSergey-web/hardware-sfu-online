@@ -28,6 +28,24 @@ module.exports = {
       handler: 'custom-sessions.getStartedAndNearestSessions',
       config: {},
     },
+    {
+      // Path defined with a URL parameter
+      method: 'GET',
+      path: '/sessions/remainig-sessions', //date=str&booking=id
+      handler: 'custom-sessions.getNumberRemainingSessionsInDayForCurrentUser',
+      config: {
+        middlewares: [
+          {
+            name: 'api::session.required',
+            config: {
+              path: 'query',
+              params: ['date', 'bookingId'],
+            },
+          },
+        ],
+      },
+    },
+
     ,
     {
       // Path defined with a URL parameter

@@ -37,11 +37,12 @@
       "max": 120,
       "min": 30
     },
-    "max_session_duration_per_day": {
+    "max_sessions_count_per_day": {
       "type": "integer",
-      "max": 1440,
-      "min": 30,
-      "required": true
+      "max": 30,
+      "min": 1,
+      "required": true,
+      "default": 30
     }
   }
 }
