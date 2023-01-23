@@ -27,6 +27,14 @@
     "type": {
       "type": "string",
       "required": true
+    },
+    "devicePort": {
+      "type": "string",
+      "required": false
+    },
+    "arduinoPort": {
+      "type": "string",
+      "required": false
     }
   }
 }
